@@ -1,5 +1,6 @@
 # Sulautetut järjestelmät 
 Sulautetut järjestelmien kurssia varten repositorio.
 
-##Esimerkki otsikko
+##1. Ohjelmointi
+python kansiosta löytyy python harjoitukset
 
