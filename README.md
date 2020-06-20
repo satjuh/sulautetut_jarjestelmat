@@ -2,7 +2,7 @@
 Sulautetut järjestelmien kurssia varten repositorio.
 
 ## Kansio rakenne
-```
+```Directory
 .
 ├── bash
 │   ├── code.sh "hello world" bash
@@ -15,8 +15,8 @@ Sulautetut järjestelmien kurssia varten repositorio.
 └── README.md
 ```
 
-##1. Ohjelmointi
+## 1. Ohjelmointi
 **Python** kansiosta löytyy python harjoitukset
 
-##2. Käyttöjärjestelmät
+## 2. Käyttöjärjestelmät
 **Bash** kansiosta löytyy liittyvät scriptit code.sh ja script.sh
