@@ -14,6 +14,9 @@ Sulautetut järjestelmien kurssia varten repositorio.
 │   ├── harjoitus5
 │   │   └── main
 │   │       └── main.ino
+│   ├── harjoitus6
+│   │   └── main
+│   │       └── main.ino
 │   └── library
 │       └── Morse
 │           ├── Morse.cpp
