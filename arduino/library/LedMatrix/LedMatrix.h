@@ -30,9 +30,11 @@ class LedMatrix{
         void columnBasedAnimation(); 
         // Animation that resembles rain
         void rainAnimation();
+        // Move a row of leds back and forth
+        void backAndForthAnimation();
         // Move a bit from byte to the next
         void bitMove();
-        // Shift bits in the sphape array
+        // Shift bits in the shape_ array
         void bitShift();
         // previously drawn shape
         char oldShape_;

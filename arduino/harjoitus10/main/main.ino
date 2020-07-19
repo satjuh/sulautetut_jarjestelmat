@@ -37,9 +37,11 @@ void setup() {
 int count = 0;
 
 void loop() {
-  char word [] = {'s', 'u', 'l', 'a', 'r','i'};
-  //matrix.drawWord(word, sizeof(word), 80);
-  //matrix.drawAnimation(1);
-  //matrix.drawAnimation(2);
-  matrix.drawAnimation(3);
+  char word [] = {'+', '-', 's', 'u', 'l', 'a', 'r','i'};
+  matrix.drawWord(word, sizeof(word), 80);
+  matrix.drawAnimation(1);
+  matrix.drawAnimation(2);
+  for (int i = 0; i < 100; ++i) {
+    matrix.drawAnimation(3);
+  }
 }
