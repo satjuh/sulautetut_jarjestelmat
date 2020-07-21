@@ -12,6 +12,7 @@ LedMatrix::LedMatrix (byte rows [], byte cols [], int drawingDelay){
     drawingDelay_ = drawingDelay;
 }
 
+
 void LedMatrix::draw(){
     for (byte i = 0; i < 8; ++i) {
         digitalWrite(rows_[i], 1);
@@ -24,7 +25,18 @@ void LedMatrix::draw(){
     }
     return;
 }
+
+
+void LedMatrix::draw(char * word, int length, int timeBetween){
+    for (byte i = 0; i < length; ++i) {
+        setShape(word[i]);
+        for (byte k = 0; k < timeBetween; ++k) {
+            draw();
+        }
+    }
+}
         
+
 void LedMatrix::getShape(char shape, byte* shape_bytes){
     switch (shape) {
         case '+':
@@ -130,13 +142,18 @@ void LedMatrix::setShape(char shape){
     }
 }
 
-void LedMatrix::drawWord(char * word, int length, int timeBetween){
-    for (byte i = 0; i < length; ++i) {
-        setShape(word[i]);
-        for (byte k = 0; k < timeBetween; ++k) {
-            draw();
-        }
-    }
+
+void LedMatrix::setShape(byte leds [8]){
+    oldShape_ = ' ';
+    shape_[0] = leds[0];
+    shape_[1] = leds[1];
+    shape_[2] = leds[2];
+    shape_[3] = leds[3];
+    shape_[4] = leds[4];
+    shape_[5] = leds[5];
+    shape_[6] = leds[6];
+    shape_[7] = leds[7];
+    return;
 }
 
 
@@ -157,53 +174,28 @@ void LedMatrix::drawAnimation(int number, int delay) {
 
 
 void LedMatrix::rowBasedAnimation(){
-    int col = 0;
-    int row = 0;
-    for (byte frames = 0; frames < 64; ++frames){
-        for (byte i = 0; i < 8; ++i) {
-            digitalWrite(rows_[i], 1);
-            for (byte k = 0; k < 8; ++k) {
-                if (k == col && row == i) {
-                    digitalWrite(cols_[k], LOW);
-                } else {
-                    digitalWrite(cols_[k], HIGH);
-                }
-                delayMicroseconds(drawingDelay_);
-                digitalWrite(cols_[k], 1);
-            }
-            digitalWrite(rows_[i], 0);
+    clear();
+    for (int k = 0; k < 8; ++k) {
+        shape_[k] = B00000001;
+        for (int i = 0; i < 8;  ++i){
+            draw();
+            bitShift();
         }
-        ++col;
-        if (col == 8) {
-            col = 0;
-            ++ row;
-        }
+        draw();
+        bitMove();
     }
 }
 
 void LedMatrix::columnBasedAnimation() {
-    int col = 0;
-    int row = 0;
-    for (byte frames = 0; frames < 64; ++frames){
-        for (byte i = 0; i < 8; ++i) {
-            digitalWrite(rows_[i], 1);
-            for (byte k = 0; k < 8; ++k) {
-                if (k == row && col == i) {
-                    digitalWrite(cols_[k], LOW);
-                } else {
-                    digitalWrite(cols_[k], HIGH);
-                }
-                delayMicroseconds(drawingDelay_);
-                digitalWrite(cols_[k], 1);
-            }
-            digitalWrite(rows_[i], 0);
-        }
-        ++col;
-        if (col == 8) {
-            col = 0;
-            ++ row;
+    clear();
+    for (int k = 0; k < 8; ++k) {
+        shape_[0] = B00000001 << k;
+        for (int i = 0; i < 8;  ++i){
+            draw();
+            bitMove();
         }
     }
+
 }
 
 
@@ -217,7 +209,7 @@ void LedMatrix::rainAnimation() {
 
 
 void LedMatrix::clear(){
-    shape_[0] = B11111111;
+    shape_[0] = B00000000;
     shape_[1] = B00000000;
     shape_[2] = B00000000;
     shape_[3] = B00000000;
@@ -255,6 +247,7 @@ void LedMatrix::bitMove(){
 
 void LedMatrix::bitShift(){
     for (int i = 0; i < 8; ++i){
-        shape_[0] << 1;
+        byte result = shape_[i] << 1;
+        shape_[i] = result;
     }
 }

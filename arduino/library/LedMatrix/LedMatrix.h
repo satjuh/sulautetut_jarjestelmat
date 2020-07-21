@@ -11,12 +11,14 @@ class LedMatrix{
         LedMatrix(byte rows [], byte cols[], int drawingDelay= 200);
         // Shapes
         void draw();
-        // Set the shape that is drawn when draw() is called
-        void setShape(char shape);
         // Draws a word one character at a time.
-        void drawWord(char * word, int length, int timeBetween);
+        void draw(char * word, int length, int timeBetween = 100);
         // Draws an animation to the led matfix
         void drawAnimation(int number, int delay = 200);
+        // Set the shape that is drawn when draw() is called
+        void setShape(char shape);
+        // Set shape based on bytes
+        void setShape(byte leds [8]);
         // Clear the shape bytes 
         void clear();
         // Set delay used in turning the led on/off 
@@ -32,9 +34,9 @@ class LedMatrix{
         void rainAnimation();
         // Move a row of leds back and forth
         void backAndForthAnimation();
-        // Move a bit from byte to the next
+        // Move bit from up to down
         void bitMove();
-        // Shift bits in the shape_ array
+        // Move bits left to right
         void bitShift();
         // previously drawn shape
         char oldShape_;

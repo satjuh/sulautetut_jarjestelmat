@@ -26,6 +26,18 @@ byte col[] = {
   COL_1,COL_2, COL_3, COL_4, COL_5, COL_6, COL_7, COL_8
 };
 
+
+byte all [8] = {
+  B11111111,
+  B11111111,
+  B11111111,
+  B11111111,
+  B11111111,
+  B11111111,
+  B11111111,
+  B11111111
+};
+
 LedMatrix matrix(rows, col);
 
 void setup() {
@@ -38,10 +50,14 @@ int count = 0;
 
 void loop() {
   char word [] = {'+', '-', 's', 'u', 'l', 'a', 'r','i'};
-  matrix.drawWord(word, sizeof(word), 80);
+  matrix.draw(word, sizeof(word), 80);
   matrix.drawAnimation(1);
   matrix.drawAnimation(2);
   for (int i = 0; i < 100; ++i) {
     matrix.drawAnimation(3);
+  }
+  matrix.setShape(all);
+  for (int i = 0; i < 80; ++i){
+    matrix.draw();
   }
 }
