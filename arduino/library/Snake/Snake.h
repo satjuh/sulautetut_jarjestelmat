@@ -2,14 +2,10 @@
 #define Snake_h 
 
 
-#include <Arduino.h>
-#include <ArduinoSTL.h>
 #include <deque>
 
 
 struct Playfield {
-    // 1 = snake 2 = food in field
-    int * field;
     std::deque<int> snake;
     int food;
     int height;
@@ -25,11 +21,14 @@ class Snake {
         // Destructor
         ~Snake();
         // Snake moves towards goal
-        void nextFrame();
-        // get board as byte array
-        void getBoard(byte * bytes);
+        void nextFrame(direction d);
+        // get board as byte array requires board size
+        // void getBoard(byte * bytes, int size);
+        std::deque<int> getBoard();
         // Start a snake game
         bool startGame();
+        // Return play field for debugging
+        Playfield getPlayfield();
     private:
         // Increse snake size
         void grow();
