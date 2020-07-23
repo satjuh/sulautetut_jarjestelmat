@@ -30,22 +30,32 @@ class Snake {
         // Return play field for debugging
         Playfield getPlayfield();
     private:
-        // Increse snake size
-        void grow();
-        // Add food to the board whre there is no snake
-        void addFood();
         // Moves snake in a given direction does not care wheter you 
         // can or cannot move to that direction. 
         void move(direction d, std::deque<int> & snake);
         // Check wheter moving to a given direction is possible
         // head parameter tells wheter we are looking the head or tail
         bool checkMove(direction d, const std::deque<int> & snake, bool head=true);
+        // Try to grow in directions given
+        bool tryToGrow(direction * ds, int size);
+        // Increse snake size
+        void grow();
+        // Add food to the board whre there is no snake
+        void addFood();
+        // Find the shortest path to food without hitting snake body
+        bool findPath(direction * dA);
+        // Calculate the eukledian distance between food and a point in the board
+        int euclideanDistance(int point); 
+        // Convert array index point to x and y coordinates 
+        void convert(int point, int & x, int & y);
         // Playfield used in snake
         Playfield playfield_;
         // snake size 
         int length_;
         // Is game ongoing
         bool ongoing_;
+        // Is food available
+        bool food_;
 };
 
 
