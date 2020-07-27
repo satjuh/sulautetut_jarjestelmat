@@ -64,21 +64,3 @@ int priorityQueue::pop(){
     delete old;
     return value;
 }
-
-
-ownArray::ownArray(unsigned int size){
-    arr_ = new int [size];
-    size_ = size;
-    currentSize = 0;
-}
-
-
-ownArray::~ownArray() {
-    delete arr_;
-}
-
-
-int ownArray::size() {
-    return currentSize;
-}
-
