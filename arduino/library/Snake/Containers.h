@@ -1,8 +1,6 @@
 #ifndef Containers_h 
 #define Containers_h 
 
-#include <iostream>
-
 namespace containers{
     // First is the priority
     // Second is the value
