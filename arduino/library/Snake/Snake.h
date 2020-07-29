@@ -7,6 +7,12 @@
 using namespace containers;
 
 
+enum direction {UP, DOWN, LEFT, RIGHT, LAST};
+
+// Playfield for the snake game
+// food = food position
+// height = height of the playfield
+// width = width of the playfield
 struct Playfield {
     ownArray<int> snake;
     int food;
@@ -14,7 +20,36 @@ struct Playfield {
     int width;
 };
 
-enum direction {UP, DOWN, LEFT, RIGHT};
+// Parent child required to track the path when finding path to the food with 
+// path finding
+struct ParChild{
+    int value;
+    direction d;
+    ParChild * parent = nullptr;
+    // Default builder required for ownArray initalization
+    ParChild(){
+        value = 0;
+        d = LAST;
+        parent = nullptr;
+    }
+    ParChild(int v, ParChild * p, direction dir) {
+        parent = p;
+        value = v;
+        d = dir;
+    }
+    ParChild( const ParChild & obj){
+        value = obj.value;
+        d = obj.d;
+        parent = obj.parent;
+    }
+    // Correct assignment operator
+    void operator=(const ParChild & pc){
+        value = pc.value;
+        parent = pc.parent;
+        d = pc.d;
+    }
+};
+
 
 class Snake {
     public:
@@ -45,11 +80,13 @@ class Snake {
         // Add food to the board whre there is no snake
         void addFood();
         // Find the shortest path to food without hitting snake body
-        bool findPath(direction * dA);
+        ownArray<direction> findPath();
         // Calculate the eukledian distance between food and a point in the board
         int euclideanDistance(int point); 
         // Convert array index point to x and y coordinates 
         void convert(int point, int & x, int & y);
+        // Check whether value is in containers
+        bool checkIfValueInContainer(ownArray<ParChild> c, int v);
         // Playfield used in snake
         Playfield playfield_;
         // snake size 
