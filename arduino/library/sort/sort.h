@@ -1,4 +1,3 @@
-#include <deque>
 namespace sort {
     template <class Container>    
     void insertionSort(Container& t);
