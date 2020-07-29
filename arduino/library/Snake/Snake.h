@@ -2,11 +2,13 @@
 #define Snake_h 
 
 
-#include <deque>
+#include "Containers.h" 
+
+using namespace containers;
 
 
 struct Playfield {
-    std::deque<int> snake;
+    ownArray<int> snake;
     int food;
     int height;
     int width;
@@ -24,7 +26,7 @@ class Snake {
         void nextFrame(direction d);
         // get board as byte array requires board size
         // void getBoard(byte * bytes, int size);
-        std::deque<int> getBoard();
+        ownArray<int> getBoard();
         // Start a snake game
         bool startGame();
         // Return play field for debugging
@@ -32,10 +34,10 @@ class Snake {
     private:
         // Moves snake in a given direction does not care wheter you 
         // can or cannot move to that direction. 
-        void move(direction d, std::deque<int> & snake);
+        void move(direction d, ownArray<int> & snake);
         // Check wheter moving to a given direction is possible
         // head parameter tells wheter we are looking the head or tail
-        bool checkMove(direction d, const std::deque<int> & snake, bool head=true);
+        bool checkMove(direction d, ownArray<int> & snake, bool head=true);
         // Try to grow in directions given
         bool tryToGrow(direction * ds, int size);
         // Increse snake size

@@ -1,13 +1,14 @@
-#include <deque>
 #include <cstdlib>
 #include <iostream>
 #include <ctime>
-#include <queue>
 
 #include <math.h>
 
 #include "Snake.h"
+#include "Containers.h"
 #include "../sort/sort.h"
+
+using namespace containers;
 
 Snake::Snake(int height, int width, int size){
     // playfield width height
@@ -88,8 +89,8 @@ void Snake::addFood(){
     while (true) {
         a = random(0, playfield_.height * playfield_.width - 1);
         found = false;
-        for (std::deque<int>::const_iterator i = playfield_.snake.begin(); i != playfield_.snake.end(); ++i){
-            if (a == *i) {
+        for (unsigned int i = 0; i < playfield_.snake.size(); ++i){
+            if (playfield_.snake[i] == a){
                 found = true;
                 break;
             }
@@ -104,7 +105,7 @@ void Snake::addFood(){
 }
 
 
-void Snake::move(direction d, std::deque<int> & snake) {
+void Snake::move(direction d, ownArray<int> & snake) {
     switch (d) {
         case UP:
             snake.push_front(snake.front() - playfield_.height);
@@ -126,7 +127,7 @@ void Snake::move(direction d, std::deque<int> & snake) {
 }
 
 
-bool Snake::checkMove(direction d, const std::deque<int> & snake, bool head) {
+bool Snake::checkMove(direction d, ownArray<int> & snake, bool head) {
     int newHead = 0;
     int begin = head ? snake.front() : snake.back();
     switch (d) {
@@ -160,25 +161,26 @@ bool Snake::checkMove(direction d, const std::deque<int> & snake, bool head) {
             }
             break;
     };
-    for (std::deque<int>::const_iterator i = snake.begin(); i != snake.end(); ++i){
-        if (newHead == *i) {
+    for (unsigned int i = 0; i < snake.size(); ++i){
+        if (newHead == snake[i]){
             return false;
         }
     }
     return true;
 }
-std::deque<int> Snake::getBoard() {
-    std::deque<int> sorted =  playfield_.snake;
-    std::deque<int> result (playfield_.height * playfield_.width, 0);
+ownArray<int> Snake::getBoard() {
+    ownArray<int> sorted =  playfield_.snake;
+    ownArray<int> result (playfield_.height * playfield_.width, 0);
     sort::insertionSort(sorted);
     // std::cout << "Snake size " << sorted.size() << std::endl;
+
     int index = 0;
     int position;
     bool stop = false;
     for (int i = 0; i < playfield_.height; ++i){
         for (int k = 0; k < playfield_.width; ++k) {
             position = i * playfield_.width + k;
-            if (sorted.at(index) == position) {
+            if (sorted[index] == position) {
                 //std::cout << "Snake pos " << sorted.at(index) << " " << position << std::endl;
                 result[position] = 1;
                 ++ index;
@@ -196,26 +198,7 @@ std::deque<int> Snake::getBoard() {
     result[playfield_.food] = 2;
     return result;
 }
-//    if (size  != ((playfield_.height * playfield_.width) - 1)) {
-//        return;
-//    }
-//    std::deque<int> sorted =  playfield_.snake;
-//    sort::insertionSort(sorted);
-//    int index = 0;
-//    int position;
-//    for (int i = 0; i < playfield_.height; ++i){
-//        for (int k = 0; k < playfield_.width; ++k) {
-//            position = i * playfield_.width + k;
-//            if (sorted.at(index) == position) {
-//                bitWrite(bytes[i], k, 1);
-//            } else if (playfield_.food == position){
-//                bitWrite(bytes[i], k, 1);
-//            } else {
-//                bitWrite(bytes[i], k, 0);
-//            }
-//        }
-//    }
-//}
+
 
 void Snake::nextFrame(direction d) {
     //std::cout << "calling next frame";
@@ -271,7 +254,7 @@ bool Snake::tryToGrow(direction * ds, int size) {
 
 bool Snake::findPath(direction * dA) {
     direction path [playfield_.height * playfield_.width];
-        
+    return false;
 }
 
 

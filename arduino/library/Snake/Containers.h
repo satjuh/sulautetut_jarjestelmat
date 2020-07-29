@@ -1,6 +1,10 @@
 #ifndef Containers_h 
 #define Containers_h 
 
+#include <iostream>
+
+using namespace std;
+
 namespace containers{
     // First is the priority
     // Second is the value
@@ -31,6 +35,7 @@ namespace containers{
     template <class Type> class ownArray{
         public:
             ownArray(unsigned int size = 8);
+            ownArray(unsigned int size, Type value);
             ~ownArray();
             // Return the size of the array
             unsigned int size();
@@ -38,6 +43,8 @@ namespace containers{
             Type & operator [](unsigned int i);
             // Push element to the end of the array
             void push_back(Type v);
+            // Push element to the front of the array. Not very efficient
+            void push_front(Type v);
             // Remove element from the end of the array and return the element
             Type pop_back();
             // Last element in the array
@@ -46,6 +53,7 @@ namespace containers{
             Type front();
         private:
             void doubleSize();
+            void clearFirst();
             Type * arr_;
             unsigned int maxSize_;
             unsigned int currentSize_;
@@ -58,6 +66,14 @@ template <class Type> containers::ownArray<Type>::ownArray(unsigned int size){
     arr_ = new Type [size];
     maxSize_ = size;
     currentSize_ = 0;
+}
+template <class Type> containers::ownArray<Type>::ownArray(unsigned int size, Type value){
+    arr_ = new Type [size];
+    maxSize_ = size;
+    for (unsigned int i = 0; i < maxSize_; ++i){
+        arr_[i] = value;
+    }
+    currentSize_ = maxSize_;
 }
 
 template <class Type> containers::ownArray<Type>::~ownArray(){
@@ -79,6 +95,17 @@ template <class Type> void containers::ownArray<Type>::push_back(Type v){
     } else {
         doubleSize();
         push_back(v);
+    }
+}
+
+template <class Type> void containers::ownArray<Type>::push_front(Type v){
+    if (currentSize_ < maxSize_){
+        clearFirst();
+        arr_[0] = v;
+        ++currentSize_;
+    } else {
+        doubleSize();
+        push_front(v);
     }
 }
 
@@ -107,6 +134,32 @@ template <class Type> void containers::ownArray<Type>::doubleSize(){
     maxSize_ = 2 * maxSize_;
     arr_ = newArr;
     return;
+}
+
+
+template <class Type> void containers::ownArray<Type>::clearFirst(){
+    if (currentSize_ == 0) {
+        return;
+    }
+    cout << "Before: current size=" << currentSize_ << endl;
+    for (unsigned int i = 0 ; i < currentSize_; ++i){
+        cout << arr_[i] << " ";
+    }
+    cout << endl;
+    cout << endl;
+
+    for (unsigned int i = currentSize_ - 1; i -->0;){
+        cout << i << " ";
+        arr_[i + 1] = arr_[i];
+        cout<< "newVal="<< arr_[i + 1] << " oldVal" <<arr_[i] << endl;
+    }
+
+    cout << "After" << endl;
+    for (unsigned int i = 0 ; i < currentSize_; ++i){
+        cout << arr_[i] << " ";
+    }
+    cout << endl;
+    cout << endl;
 }
 
 
