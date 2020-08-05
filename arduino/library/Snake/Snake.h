@@ -6,7 +6,7 @@
 
 using namespace containers;
 
-
+// Up = 0, down = 1, left = 2, right = 3, last = 4
 enum direction {UP, DOWN, LEFT, RIGHT, LAST};
 
 // Playfield for the snake game
@@ -24,29 +24,29 @@ struct Playfield {
 // path finding
 struct ParChild{
     int value;
+    // value -1 means no parent
+    int parent;
+    // direction last means that this parchild was the starting point
     direction d;
-    ParChild * parent = nullptr;
     // Default builder required for ownArray initalization
     ParChild(){
-        value = 0;
+        value = -1;
         d = LAST;
-        parent = nullptr;
+        parent = -1;
     }
-    ParChild(int v, ParChild * p, direction dir) {
+    ParChild(int v, int p, direction dir) {
         parent = p;
         value = v;
         d = dir;
     }
     ParChild( const ParChild & obj){
+        // Copy builder
         value = obj.value;
         d = obj.d;
         parent = obj.parent;
     }
-    // Correct assignment operator
-    void operator=(const ParChild & pc){
-        value = pc.value;
-        parent = pc.parent;
-        d = pc.d;
+    bool operator<(const ParChild& obj){
+        return value < obj.value;
     }
 };
 
@@ -58,10 +58,11 @@ class Snake {
         // Destructor
         ~Snake();
         // Snake moves towards goal
-        void nextFrame(direction d);
+        void nextFrame(void (*f)(const ownArray<int>& arr));
         // get board as byte array requires board size
         // void getBoard(byte * bytes, int size);
         ownArray<int> getBoard();
+        ownArray<int> getBoard(const ownArray<int> & snake);
         // Start a snake game
         bool startGame();
         // Return play field for debugging
@@ -69,7 +70,7 @@ class Snake {
     private:
         // Moves snake in a given direction does not care wheter you 
         // can or cannot move to that direction. 
-        void move(direction d, ownArray<int> & snake);
+        void move(direction d, ownArray<int> & snake, bool forward = true);
         // Check wheter moving to a given direction is possible
         // head parameter tells wheter we are looking the head or tail
         bool checkMove(direction d, ownArray<int> & snake, bool head=true);
@@ -81,12 +82,14 @@ class Snake {
         void addFood();
         // Find the shortest path to food without hitting snake body
         ownArray<direction> findPath();
+        // Find a path with depthFirst search with simulated snake movement
+        bool depthFirst(ownArray<direction> & directions, direction current, ownArray<int>& visited, ownArray<int> & snake);
         // Calculate the eukledian distance between food and a point in the board
         int euclideanDistance(int point); 
         // Convert array index point to x and y coordinates 
         void convert(int point, int & x, int & y);
         // Check whether value is in containers
-        bool checkIfValueInContainer(ownArray<ParChild> c, int v);
+        bool checkIfValueInContainer(ownArray<int> c, int v);
         // Playfield used in snake
         Playfield playfield_;
         // snake size 
