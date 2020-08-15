@@ -1,4 +1,5 @@
-#include <LedMatrix.h>
+#include "LedMatrix.h"
+#include "Snake.h"
 // Defines
 
 #define ROW_1 2
@@ -38,12 +39,25 @@ byte all [8] = {
   B11111111
 };
 
+byte board [8] = {0};
+
 LedMatrix matrix(rows, col);
+Snake snake(8, 8);
 
 void setup() {
   matrix.clear();
   matrix.setDelay(200);
   matrix.setShape('u');
+  snake.startGame();
+  //snake.getBoard(board, sizeof(board));
+  matrix.setShape(board);
+}
+
+void draw( byte arr [] ){
+  matrix.setShape(arr);
+  for (unsigned int i = 0; i < 5; ++i){
+    matrix.draw();
+  }
 }
 
 int count = 0;
@@ -60,4 +74,9 @@ void loop() {
   for (int i = 0; i < 80; ++i){
     matrix.draw();
   }
+
+  while (snake.onGoing()){
+    snake.nextFrame(draw);
+  }
+  snake.startGame();
 }

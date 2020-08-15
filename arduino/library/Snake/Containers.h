@@ -1,7 +1,6 @@
 #ifndef Containers_h 
 #define Containers_h 
 
-#include <iostream>
 
 namespace containers{
     // First is the priority
@@ -115,7 +114,7 @@ template <class Type> const Type & containers::ownArray<Type>::operator[](unsign
 }
 
 template <class Type> void containers::ownArray<Type>::operator= (const ownArray & obj){
-    if (currentSize_ >= obj.currentSize_){
+    if (currentSize_ <= obj.currentSize_){
         delete [] arr_;
         arr_ = new Type[obj.maxSize_];
         maxSize_ = obj.maxSize_;
@@ -159,37 +158,29 @@ template <class Type> void containers::ownArray<Type>::pop_back(){
 
 template<class Type> void containers::ownArray<Type>::pop_front(){
     if (currentSize_ <= 0){
-        throw "Can't pop empty array!";
+        return;
     }
-    /*
-    for (unsigned int i = 0; i < currentSize_; ++i){
-        std::cout<<arr_[i];
-    }
-    std::cout<<std::endl;
-    */
 
     for (unsigned int i = 0; i < currentSize_ - 1; ++i){
         arr_[i] = arr_[i+1];
     }
-    /*
-    std::cout<<std::endl;;
-
-    for (unsigned int i = 0; i < currentSize_; ++i){
-        std::cout<<arr_[i];
-    }
-    std::cout<<std::endl;;
-    */
 
     --currentSize_;
     return;
 }
 
 template <class Type> Type containers::ownArray<Type>::back(){ 
-    return currentSize_ > 0 ? arr_[currentSize_ - 1] : throw "Can't index empty array!";
+    // orginal version, Arduino doesn't support exceptions
+    // return currentSize_ > 0 ? arr_[currentSize_ - 1] : throw "Can't index empty array!";
+    // dangerous
+    return arr_[currentSize_ - 1];
 }
 
 template <class Type> Type containers::ownArray<Type>::front(){ 
-    return currentSize_ > 0 ? arr_[0] : throw "Can't index empty array!";
+    // orginal version, Arduino doesn't support exceptions
+    // return currentSize_ > 0 ? arr_[0] : throw "Can't index empty array!";
+    // dangerous will break if the array is empty
+    return arr_[0];
 }
 
 template <class Type> void containers::ownArray<Type>::doubleSize(){
@@ -267,7 +258,7 @@ template <class Type> void containers::priorityQueue<Type>::push(Type x, int pri
 
 template <class Type> Type containers::priorityQueue<Type>::pop(){
     if (first_ == nullptr) {
-        throw "Empty!";
+        return;
     }
     Type value = first_->value;
     Pair<Type> * old = first_;

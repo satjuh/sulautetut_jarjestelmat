@@ -54,16 +54,14 @@ struct ParChild{
 class Snake {
     public:
         // Height and width of the playfield
-        // hamiltonianCycle shows a route around the playfield that 
-        // https://en.wikipedia.org/wiki/Hamiltonian_path_problem
         Snake(int height, int width, int size = 3);
         // Destructor
         ~Snake();
         // Snake moves towards goal
-        void nextFrame(void (*f)(const ownArray<int>& arr));
+        void nextFrame(void (*f)(byte arr [] ));
         // get board as byte array requires board size
         // void getBoard(byte * bytes, int size);
-        ownArray<int> getBoard();
+        void getBoard();
         // Might not be needed anymore.
         // Get board based on a snake that is in a different position
         ownArray<int> getBoard(const ownArray<int> & snake);
@@ -71,6 +69,8 @@ class Snake {
         bool startGame();
         // Return play field for debugging
         Playfield getPlayfield();
+        // get if game is still going
+        bool onGoing();
     private:
         // Moves snake in a given direction does not care wheter you 
         // can or cannot move to that direction. 
@@ -85,6 +85,8 @@ class Snake {
         // Add food to the board whre there is no snake
         void addFood();
         // Make a super simple hamiltonianCycle for a square layout with height dividable with 8
+        // hamiltonianCycle shows a route around the playfield that can be used to make the moves
+        // https://en.wikipedia.org/wiki/Hamiltonian_path_problem
         void makeHamiltonianCycle();
         // Find the shortest path to food without hitting snake body
         ownArray<direction> findPath();
@@ -94,6 +96,8 @@ class Snake {
         int convert(int x, int y);
         // Check whether value is in containers
         bool checkIfValueInContainer(ownArray<int> c, int v);
+        // for clearing the board
+        void clearBoard();
         // Playfield used in snake
         Playfield playfield_;
         // snake size 
@@ -103,6 +107,7 @@ class Snake {
         // Is food available
         bool food_;
         // cycle 
+        byte * board_;
         ownArray<int> hamiltonianCycle_;
 };
 
