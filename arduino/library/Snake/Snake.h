@@ -82,7 +82,7 @@ class Snake {
         void addFood();
         // Find the shortest path to food without hitting snake body
         ownArray<direction> findPath();
-        // Find a path with depthFirst search with simulated snake movement
+        // Find a path with depthFirst search with simulated snake movement. Ends up in a dead end quite soon.
         bool depthFirst(ownArray<direction> & directions, direction current, ownArray<int>& visited, ownArray<int> & snake);
         // Calculate the eukledian distance between food and a point in the board
         int euclideanDistance(int point); 
