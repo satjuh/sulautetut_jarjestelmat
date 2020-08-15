@@ -54,6 +54,8 @@ struct ParChild{
 class Snake {
     public:
         // Height and width of the playfield
+        // hamiltonianCycle shows a route around the playfield that 
+        // https://en.wikipedia.org/wiki/Hamiltonian_path_problem
         Snake(int height, int width, int size = 3);
         // Destructor
         ~Snake();
@@ -62,6 +64,8 @@ class Snake {
         // get board as byte array requires board size
         // void getBoard(byte * bytes, int size);
         ownArray<int> getBoard();
+        // Might not be needed anymore.
+        // Get board based on a snake that is in a different position
         ownArray<int> getBoard(const ownArray<int> & snake);
         // Start a snake game
         bool startGame();
@@ -80,14 +84,14 @@ class Snake {
         void grow();
         // Add food to the board whre there is no snake
         void addFood();
+        // Make a super simple hamiltonianCycle for a square layout with height dividable with 8
+        void makeHamiltonianCycle();
         // Find the shortest path to food without hitting snake body
         ownArray<direction> findPath();
-        // Find a path with depthFirst search with simulated snake movement. Ends up in a dead end quite soon.
-        bool depthFirst(ownArray<direction> & directions, direction current, ownArray<int>& visited, ownArray<int> & snake);
-        // Calculate the eukledian distance between food and a point in the board
-        int euclideanDistance(int point); 
         // Convert array index point to x and y coordinates 
         void convert(int point, int & x, int & y);
+        // convert x, y coordinates to array index
+        int convert(int x, int y);
         // Check whether value is in containers
         bool checkIfValueInContainer(ownArray<int> c, int v);
         // Playfield used in snake
@@ -98,6 +102,8 @@ class Snake {
         bool ongoing_;
         // Is food available
         bool food_;
+        // cycle 
+        ownArray<int> hamiltonianCycle_;
 };
 
 

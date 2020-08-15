@@ -20,6 +20,9 @@ Snake::Snake(int height, int width, int size){
     playfield_.food = 0;
     ongoing_ = false;
     food_ = false;
+    ownArray<int> temp(0,width*size);
+    hamiltonianCycle_ = temp;
+    makeHamiltonianCycle();
 }
 
 Snake::~Snake(){
@@ -104,6 +107,57 @@ void Snake::addFood(){
     }
 
     return;
+}
+
+void Snake::makeHamiltonianCycle(){
+    // hamiltonianCycle_ used as and map [x] = next position
+    int x, y;
+    x = playfield_.width; 
+    y = 0;
+    // Start from right top
+    bool moveLeft = true;
+    bool moveUp = false;
+    for (unsigned int i = 0; i < playfield_.height * playfield_.width; ++i){
+        // First line
+        if (!moveUp){
+            if (x == 0){
+                hamiltonianCycle_[convert(x,y)] = convert(x, y + 1);
+                moveLeft = false; 
+                ++y;
+            } else if (x == playfield_.width - 2 && y > 0 && y < playfield_.height - 1){
+                hamiltonianCycle_[convert(x,y)] = convert(x, y + 1);
+                moveLeft = true;
+                ++y;
+            } else if (y == playfield_.height && x == playfield_.width) {
+                hamiltonianCycle_[convert(x,y)] = convert(x, y - 1);
+                moveUp = true;
+                --y;
+            } else {
+                if (moveLeft){
+                    hamiltonianCycle_[convert(x,y)] = convert(x - 1, y);
+                    --x;
+                } else {
+                    hamiltonianCycle_[convert(x, y)] = convert(x + 1, y);
+                    ++x;
+                }
+            }    
+        } else {
+            if (y == 1) {
+                hamiltonianCycle_[convert(x, y)] = convert(x - 1, y);
+                break;
+            } else {
+                hamiltonianCycle_[convert(x, y)] = convert(x, y - 1);
+                ++y;
+            }
+        }
+    }
+
+    for (unsigned int i = 0; i < playfield_.height; ++i){
+        for (unsigned int a = 0; a < playfield_.width; ++ a){
+            std::cout << hamiltonianCycle_[convert(a, i)];
+        }
+        std::cout << endl;
+    }
 }
 
 
@@ -333,7 +387,6 @@ ownArray<direction> Snake::findPath() {
     ownArray<direction> result;
     ownArray<int> tempSnake = playfield_.snake;
     ownArray<int> visited;
-    depthFirst(result, LAST, visited, tempSnake);
     return result;
     /*
     ownArray<int> visited; 
@@ -401,68 +454,16 @@ ownArray<direction> Snake::findPath() {
     */
 }
 
-bool Snake::depthFirst(ownArray<direction> & directions, direction current, ownArray<int>& visited, ownArray<int>& snake){
-    ownArray<int> board = getBoard(snake);
-    if (current != LAST) {
-        directions.push_back(current);
-        move(current, snake);
-    }
-    if (snake.front() == playfield_.food){
-        return true;
-    } else {
-        visited.push_back(snake.front());
-        bool found = false;
-        if (checkMove(LEFT,snake) && !checkIfValueInContainer(visited, snake.front() -1)){
-            found = depthFirst(directions, LEFT, visited, snake);
-            if (!found){
-                move(RIGHT, snake, false);
-                directions.pop_back();
-            }
-        }
-        if (checkMove(RIGHT, snake) && !found && !checkIfValueInContainer(visited, snake.front() +1 )){
-            found = depthFirst(directions, RIGHT, visited, snake);
-            if (!found){
-                move(LEFT, snake, false);
-                directions.pop_back();
-            }
-        }
-        if (checkMove(UP, snake) && !found && !checkIfValueInContainer(visited, snake.front() - playfield_.width)){
-            found = depthFirst(directions, UP, visited, snake);
-            if (!found){
-                move(DOWN, snake, false);
-                directions.pop_back();
-            }
-        }
-        if (checkMove(DOWN, snake) && !found && !checkIfValueInContainer(visited, snake.front() + playfield_.width)){
-            found = depthFirst(directions, DOWN, visited, snake);
-            if (!found){
-                move(UP, snake, false);
-                directions.pop_back();
-            }
-        }
-
-        if (found){
-            return true;
-        }
-
-    }
-}
-
-int Snake::euclideanDistance(int point) {
-    // convert to x, y coordinates
-    int x, y;
-    int x2, y2;
-    convert(point, x, y);
-    convert(playfield_.food, x2, y2);
-    
-    // https://en.wikipedia.org/wiki/Euclidean_distance
-    return sqrt(pow(x - x2, 2) + pow(y -y2, 2));
-}
 
 void Snake::convert(int point, int & x, int & y) {
     x = (point % playfield_.width) + 1;
     y = int (point / playfield_.height) ;
     return;
+}
+
+int Snake::convert(int x, int y){
+    return y * playfield_.height + x;
+    
 }
 
 bool Snake::checkIfValueInContainer(ownArray<int> c, int v) {
