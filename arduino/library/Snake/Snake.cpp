@@ -1,9 +1,4 @@
-#include <cstdlib>
-#include <iostream>
-#include <ctime>
-
-#include <math.h>
-#include <unistd.h>
+#include <Arduino.h>
 
 #include "Snake.h"
 #include "Containers.h"
@@ -20,7 +15,10 @@ Snake::Snake(int height, int width, int size){
     playfield_.food = 0;
     ongoing_ = false;
     food_ = false;
-    ownArray<int> temp(0,width*size);
+    board_ = new byte [height];
+    // Assuming 8 x 8 grid even though the whole program is modular to some extent
+    clearBoard();
+    ownArray<int> temp(width*height, 0);
     hamiltonianCycle_ = temp;
     makeHamiltonianCycle();
 }
@@ -28,11 +26,6 @@ Snake::Snake(int height, int width, int size){
 Snake::~Snake(){
 }
 
-
-int random (int lower, int upper) {
-    srand((unsigned) time(0));
-    return rand() % upper + lower + 1;
-}
 
 bool Snake::startGame(){
     if (ongoing_){
@@ -55,10 +48,15 @@ bool Snake::startGame(){
     // Add food to playfield
     playfield_.food = a;
     food_ = true;
+    // clear snake containers
+    for (unsigned int i = 0; i < playfield_.snake.size(); ++i){
+        playfield_.snake.pop_back();
+    }
     // Add snake body to the left side of the snake
     for (int i = 0; i < length_; ++i){
         playfield_.snake.push_back(b - i);
     }
+    ongoing_ = true;
     return true;
 
 }
@@ -112,7 +110,7 @@ void Snake::addFood(){
 void Snake::makeHamiltonianCycle(){
     // hamiltonianCycle_ used as and map [x] = next position
     int x, y;
-    x = playfield_.width; 
+    x = playfield_.width - 1;
     y = 0;
     // Start from right top
     bool moveLeft = true;
@@ -120,15 +118,15 @@ void Snake::makeHamiltonianCycle(){
     for (unsigned int i = 0; i < playfield_.height * playfield_.width; ++i){
         // First line
         if (!moveUp){
-            if (x == 0){
+            if (x == 0 && moveLeft){
                 hamiltonianCycle_[convert(x,y)] = convert(x, y + 1);
                 moveLeft = false; 
                 ++y;
-            } else if (x == playfield_.width - 2 && y > 0 && y < playfield_.height - 1){
+            } else if (x == playfield_.width - 2 && y > 0 && y < playfield_.height - 1 && !moveLeft){
                 hamiltonianCycle_[convert(x,y)] = convert(x, y + 1);
                 moveLeft = true;
                 ++y;
-            } else if (y == playfield_.height && x == playfield_.width) {
+            } else if (y == playfield_.height - 1 && x == playfield_.width - 1) {
                 hamiltonianCycle_[convert(x,y)] = convert(x, y - 1);
                 moveUp = true;
                 --y;
@@ -142,21 +140,14 @@ void Snake::makeHamiltonianCycle(){
                 }
             }    
         } else {
-            if (y == 1) {
+            if (y == 0) {
                 hamiltonianCycle_[convert(x, y)] = convert(x - 1, y);
                 break;
             } else {
                 hamiltonianCycle_[convert(x, y)] = convert(x, y - 1);
-                ++y;
+                --y;
             }
         }
-    }
-
-    for (unsigned int i = 0; i < playfield_.height; ++i){
-        for (unsigned int a = 0; a < playfield_.width; ++ a){
-            std::cout << hamiltonianCycle_[convert(a, i)];
-        }
-        std::cout << endl;
     }
 }
 
@@ -245,9 +236,9 @@ bool Snake::checkMove(direction d, ownArray<int> & snake, bool head) {
     }
     return true;
 }
-ownArray<int> Snake::getBoard() {
+
+void Snake::getBoard() {
     ownArray<int> sorted =  playfield_.snake;
-    ownArray<int> result (playfield_.height * playfield_.width, 0);
     sort::insertionSort(sorted);
 
     int index = 0;
@@ -257,7 +248,7 @@ ownArray<int> Snake::getBoard() {
         for (unsigned int k = 0; k < playfield_.width; ++k) {
             position = i * playfield_.width + k;
             if (sorted[index] == position) {
-                result[position] = 1;
+                bitWrite(board_[i], k, 1);
                 ++ index;
             }
 
@@ -270,8 +261,10 @@ ownArray<int> Snake::getBoard() {
             break;
         }
     }
-    result[playfield_.food] = 2;
-    return result;
+    int x, y;
+    convert(playfield_.food, x, y);
+    bitWrite(board_[y], x, 1);
+    return;
 }
 
 ownArray<int> Snake::getBoard(const ownArray<int>& snake) {
@@ -303,36 +296,20 @@ ownArray<int> Snake::getBoard(const ownArray<int>& snake) {
     return result;
 }
 
-void Snake::nextFrame(void (*print)(const ownArray<int>& arr)) {
+void Snake::nextFrame(void (*print)(byte arr[] )) {
     ownArray<direction> dirs = findPath();
-    bool restart = false;
-    // Couldn't find a path so lets start again.
-    if (dirs.size() == 0){
-        restart = true;
-    }
 
     for (unsigned int i = 0; i < dirs.size(); ++i){
-        if (!(checkMove(UP, playfield_.snake) || checkMove(DOWN, playfield_.snake) 
-            || checkMove(LEFT, playfield_.snake) || checkMove(RIGHT, playfield_.snake))){
-                restart=true;
-                break;
-            }
-        if (checkMove(dirs[i], playfield_.snake)){
-            ownArray<int> board = getBoard();
-            print(board);
-            move(dirs[i], playfield_.snake);
-        }
+        clearBoard();
+        getBoard();
+        print(board_);
+        move(dirs[i], playfield_.snake);
     }
-    if (restart){
-        print(ownArray<int>(64,1));
-        ongoing_ = false;
-        startGame();
+
+    if (playfield_.snake.size() == playfield_.height * playfield_.width - 1){
+        ongoing_=false;
+        return;
     }
-    /*
-    if (checkMove(d,playfield_.snake)){
-        move(d, playfield_.snake);
-    }
-    */
     if (playfield_.snake[0] == playfield_.food) {
         grow();
         addFood();
@@ -385,73 +362,23 @@ bool Snake::tryToGrow(direction * ds, int size) {
 
 ownArray<direction> Snake::findPath() {
     ownArray<direction> result;
-    ownArray<int> tempSnake = playfield_.snake;
-    ownArray<int> visited;
-    return result;
-    /*
-    ownArray<int> visited; 
-    // A container parent child relations. Used similarly to std::map where
-    // index = 1 means position 1 on the playfield. 
-    ownArray<ParChild> map (64, ParChild());
-    
-    ParChild current (playfield_.snake.front(), -1, LAST);
-    priorityQueue<ParChild> posDirections;
-    bool notFound = true;
+    int current = playfield_.snake.front();
 
-    // Push first position to visited
-    visited.push_back(playfield_.snake.front());
-
-    int counter = 0;
-    while (notFound){
-        ++counter;
-        if (counter > playfield_.width * playfield_.height){
-            break;
+    while (current != playfield_.food){
+        int next = hamiltonianCycle_[current];
+        // Up
+        if (current - next == playfield_.height){
+            result.push_back(UP);
+        } else if (current + 1 == next) {
+            result.push_back(RIGHT);
+        } else if (current -1 == next) {
+            result.push_back(LEFT);
+        } else if (current - next == -playfield_.height){
+            result.push_back(DOWN);
         }
-        if (current.value == playfield_.food){
-            break;
-        }
-        // Add possible moves from current position
-        if (checkMove(LEFT, playfield_.snake) && !checkIfValueInContainer(visited, current.value - 1)) {
-            ParChild t (current.value - 1, current.value, LEFT);
-            posDirections.push(t, euclideanDistance(t.value));
-            visited.push_back(t.value);
-            map[t.value] = t;
-        }
-        if (checkMove(RIGHT, playfield_.snake) && !checkIfValueInContainer(visited, current.value + 1)){
-            ParChild t (current.value + 1, current.value, RIGHT);
-            posDirections.push(t, euclideanDistance(t.value));
-            visited.push_back(t.value);
-            map[t.value] = t;
-        }
-        if (checkMove(DOWN, playfield_.snake) && !checkIfValueInContainer(visited, current.value + playfield_.width)){
-            ParChild t (current.value + playfield_.width, current.value, DOWN);
-            posDirections.push(t, euclideanDistance(t.value));
-            visited.push_back(t.value);
-            map[t.value] = t;
-        }
-        if (checkMove(UP, playfield_.snake) && !checkIfValueInContainer(visited, current.value - playfield_.width)){
-            ParChild t (current.value - playfield_.width, current.value, UP);
-            posDirections.push(t, euclideanDistance(t.value));
-            visited.push_back(t.value);
-            map[t.value] = t;
-        }
-
-        current = posDirections.pop();
-        
-
+        current = next;
     }
-
-    ownArray<direction> result;
-    int index = current.value;
-
-    while(index != -1){
-        std::cout << "Index==" << index << std::endl;
-        result.push_back(map[index].d);
-        index = map[index].parent;
-    }
-
     return result;
-    */
 }
 
 
@@ -475,4 +402,15 @@ bool Snake::checkIfValueInContainer(ownArray<int> c, int v) {
         }
     }
     return found;
+}
+
+
+bool Snake::onGoing() {
+    return ongoing_;
+} 
+
+void Snake::clearBoard(){
+    for (unsigned int i = 0; i < 8; ++i) {
+        board_[i] = B00000000;
+    }
 }
