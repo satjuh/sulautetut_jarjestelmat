@@ -1,38 +1,31 @@
-#!/usr/bin/python3
-from fmiopendata.wfs import download_stored_query
-
-obsQuery = "fmi::observations::weather::cities::multipointcoverage"
-fore = "fmi::forecast::hirlam::surface::obsstations::multipointcoverage"
+from bs4 import BeautifulSoup
+from types import SimpleNamespace
+import requests
 
 
+def parse_rows(rows):
+    result = []
+    for row in rows:
+        obj = SimpleNamespace()
+        obj.hour = row.find('th', class_='hourly-table-hour').span.text
+        obj.temp = row.find('td', class_='temp').span.text
+        obj.feels = row.find('td', class_='hourly-table-feelslike').get('title')
+        obj.cloud = row.find('img', class_='wxImage').get('title')
+        obj.cloudImageUrl = row.find('img', class_='wxImage').get('src')
+        obj.wind = row.find('td', class_='wind').div.get('title')
+        result.append(obj)
 
-class Observations:
-    obsQuery = "fmi::observations::weather::cities::multipointcoverage"
-    query =  download_stored_query(obsQuery)
-    locations = sorted(query.location_metadata.keys())
-    times = sorted(query.data.keys())
-    
-    def latestReading(self, location):
-        i = -1
-        while location not in self.query.data[self.times[i]].keys():
-            i = i - 1
+    return result
 
-        return self.query.data[self.times[i]][location], self.times[i]
-    
-    def allReadings(self, location):
-        result = {} 
-        for time in self.times:
-            if location in self.query.data[time].keys():
-                result[time] = self.query.data[time][location]
+def get_weather():
+    page = requests.get('https://www.ilmatieteenlaitos.fi/saa/helsinki')
 
-        return result
+    soup = BeautifulSoup(page.content, 'html.parser')
 
+    # Find all tr:s with id hour-row-*
+    rows = soup.findAll("tr", {"id" : lambda L: L and L.startswith('hour-row-')})
+
+    return parse_rows(rows)
 
 if __name__ == "__main__":
-    obs = Observations()
-    #print(obs.locations)
-    # reading, time = obs.latestReading("Tampere Tampella")
-    readings = obs.allReadings("Jokioinen Ilmala") 
-    for time in readings.keys():
-        for key in readings[time].keys():
-            print(key, ":", readings[time][key]["value"])
+    print(get_weather())
