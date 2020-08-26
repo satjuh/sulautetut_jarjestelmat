@@ -5,7 +5,7 @@ import requests
 
 def parse_rows(rows):
     result = []
-    for row in rows:
+    for row in rows[1:]:
         obj = SimpleNamespace()
         obj.hour = row.find('th', class_='hourly-table-hour').span.text
         obj.temp = row.find('td', class_='temp').span.text
