@@ -34,3 +34,6 @@
 
 # Visual code settings
 .vscode
+
+# python cache
+**/__pycache__
