@@ -52,7 +52,11 @@ def add_events(window, window_width, window_height):
         # Add description
         if len(event.description ) > window_width:
             # Better version
-            words = event.description.split(" ")
+            words = event.description \
+                .replace("<br>", " ") \
+                .replace("<span>", "") \
+                .replace("</span>", "") \
+                .split()
             # Line starts at 2
             current_width = 2
             for word in words:
@@ -66,13 +70,13 @@ def add_events(window, window_width, window_height):
                     current_width = 2
                     window.addstr(line, current_width, word)
                     current_width = current_width + len(word) +1
-
+            line = line + 1
 
         elif len(event.description) > 0 and line + 1 < window_height:
             window.addstr(line, center - floor(len(event.description)), event.description)
             line = line + 1
 
-        line = line + 2
+        line = line + 1
 
         
 def add_weather(window, window_width, window_height):
@@ -109,6 +113,7 @@ def main(stdsrc):
     # find the center of the clock window
     clock_x = floor(cols / 2) - floor(len(format_string)/ 2)
     clock_y = floor(clock_height / 2) 
+    clock.border()
 
     # Calendar window
     calendar_height = rows - 3
@@ -125,18 +130,34 @@ def main(stdsrc):
     weather.border()
     weather.refresh()
 
+    counter = 0
     while True:
         clock.clear()
         time = arrow.utcnow().shift(hours=2).format(format_string)
         clock.addstr(clock_y,clock_x,time)
         clock.refresh()
-        clock.border()
         # 1000 = 1 sec 10^3
         clock.timeout(10**3 * 6)
         try: 
+            counter = counter + 1
+            if counter == 60:
+                add_events(calendar, calendar_width, calendar_height)
+                calendar.refresh()
+                add_weather(weather, weather_width, calendar_height)
+                weather.refresh()
+                counter = 0
+
             key = clock.getkey()
+
             if str(key) == 'q':
                 break
+            elif str(key) == 'r':
+                add_events(calendar, calendar_width, calendar_height)
+                calendar.refresh()
+                add_weather(weather, weather_width, calendar_height)
+                weather.refresh()
+
+
         except:
             pass
 

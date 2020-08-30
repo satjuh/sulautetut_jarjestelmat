@@ -1,6 +1,4 @@
 ics
-fmiopendata
-eccodes
-bs4
+beautifulsoup4
 request
 python-dotenv
