@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup
 from types import SimpleNamespace
-import requests
+from os import getenv
+from requests import get
+
 
 
 def parse_rows(rows):
@@ -18,8 +20,9 @@ def parse_rows(rows):
     return result
 
 def get_weather():
-    page = requests.get('https://www.ilmatieteenlaitos.fi/saa/helsinki')
-
+    # Example url https://www.ilmatieteenlaitos.fi/saa/helsinki
+    url = getenv('WEATHER_URL')
+    page = get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
 
     # Find all tr:s with id hour-row-*

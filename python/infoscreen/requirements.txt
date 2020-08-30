@@ -3,3 +3,4 @@ fmiopendata
 eccodes
 bs4
 request
+python-dotenv

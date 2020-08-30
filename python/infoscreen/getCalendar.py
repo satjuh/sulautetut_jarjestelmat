@@ -1,18 +1,22 @@
-#!/usr/bin/python3
 from ics import Calendar
+from os import getenv
+from requests import get
 import calendar
 import arrow
 
 
 def todays_events():
-    g = open('calendar.ics', 'r')
-    c = Calendar(g.read())
+    url = getenv('CAL_URL')
+    g = get(url).text
+    c = Calendar(g)
     today = arrow.utcnow()
     events = c.timeline
     result = []
 
     for event in events:
-        if today.month == event.begin.month and today.day == event.begin.day:
+        if today.month == event.begin.month and  \
+            today.day == event.begin.day and \
+            event.begin.timestamp> today.timestamp:
             result.append(event)
 
     return result
