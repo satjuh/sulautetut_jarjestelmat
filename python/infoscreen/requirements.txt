@@ -1,0 +1,4 @@
+ics
+beautifulsoup4
+request
+python-dotenv

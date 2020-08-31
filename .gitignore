@@ -37,3 +37,6 @@
 
 # python cache
 **/__pycache__
+
+# python virtual env directory
+**/.env

@@ -1,18 +1,22 @@
-#!/usr/bin/python3
 from ics import Calendar
+from os import getenv
+from requests import get
 import calendar
 import arrow
 
 
 def todays_events():
-    g = open('calendar.ics', 'r')
-    c = Calendar(g.read())
+    url = getenv('CAL_URL')
+    g = get(url).text
+    c = Calendar(g)
     today = arrow.utcnow()
     events = c.timeline
     result = []
 
     for event in events:
-        if today.month == event.begin.month and today.day == event.begin.day:
+        if today.month == event.begin.month and  \
+            today.day == event.begin.day and \
+            event.end.timestamp> today.timestamp:
             result.append(event)
 
     return result
@@ -28,6 +32,12 @@ def print_events(events):
             event.name,
             event.description))
         print('==================================')
+        words = event.description \
+            .replace("<br>", " ") \
+            .replace("<span>", "") \
+            .replace("</span>", "") \
+            .split()
+        print (words)
 
 # Based on rosetta code example
 # https://rosettacode.org/wiki/Find_the_last_Sunday_of_each_month#Python
@@ -56,5 +66,10 @@ def get_UTC_offset(datetime):
 
 
 if __name__ == "__main__":
+    from dotenv import load_dotenv
+    import os
+
+    load_dotenv('.env')
+
     events = todays_events()
     print_events(events)
